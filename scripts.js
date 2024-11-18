@@ -33,42 +33,40 @@ let currentSet = 1;
 
 
 function displayNext() {
-  if (selectedExercises.length === 0) {
-      gifContainer.innerHTML = `<p>No exercises selected. Please choose one from below.</p>`;
-      descriptionElement.textContent = "";
-      return;
-  }
+    if (selectedExercises.length === 0) {
+        gifContainer.innerHTML = `<p>No exercises selected. Please choose one from below.</p>`;
+        descriptionElement.textContent = "";
+        return;
+    }
 
-  if (isPaused) return;
+    if (isPaused) return;
 
-  if (currentIndex === 0 && currentSet > sets) {
-      // End workout and display success message
-      gifContainer.innerHTML = `<p></p>`;
-      descriptionElement.textContent = "";
-      document.getElementById("successMessage").style.display = "block";
-      return;
-  }
+    if (currentIndex === 0 && currentSet > sets) {
+        gifContainer.innerHTML = `<p></p>`;
+        descriptionElement.textContent = "";
+        document.getElementById("successMessage").style.display = "block";
+        return;
+    }
 
-  if (isCountdown) {
-      // Show exercise after countdown
-      const exercise = selectedExercises[currentIndex];
-      gifContainer.innerHTML = `<img src="${exercise.gif}" alt="${exercise.name}">`;
-      descriptionElement.textContent = exercise.description;
-      currentIndex++;
-      if (currentIndex >= selectedExercises.length) {
-          currentIndex = 0;
-          currentSet++;
-      }
-      isCountdown = false;
-      timer = setTimeout(displayNext, 5000); // Show the exercise for 5 seconds
-  } else {
-      // Show countdown
-      gifContainer.innerHTML = `<img src="${countdownGif}" alt="Countdown">`;
-      descriptionElement.textContent = "Get ready for the next exercise!";
-      isCountdown = true;
-      timer = setTimeout(displayNext, countdownDuration); // Show countdown for its duration
-  }
+    if (isCountdown) {
+        const exercise = selectedExercises[currentIndex];
+        gifContainer.innerHTML = `<img src="${exercise.gif}" alt="${exercise.name}">`;
+        descriptionElement.textContent = `Exercise: ${exercise.description} (Set ${currentSet} of ${sets})`; // Moved here
+        currentIndex++;
+        if (currentIndex >= selectedExercises.length) {
+            currentIndex = 0;
+            currentSet++;
+        }
+        isCountdown = false;
+        timer = setTimeout(displayNext, 10000); // Show the exercise for 5 seconds
+    } else {
+        gifContainer.innerHTML = `<img src="${countdownGif}" alt="Countdown">`;
+        descriptionElement.textContent = "Get ready for the next exercise!";
+        isCountdown = true;
+        timer = setTimeout(displayNext, countdownDuration); // Show countdown for its duration
+    }
 }
+
 
 playButton.addEventListener("click", () => {
   isPaused = false;
@@ -111,24 +109,8 @@ startOverButton.addEventListener("click", () => {
   document.getElementById("successMessage").style.display = "none";
 });
 
-descriptionElement.textContent = `Exercise: ${exercise.description} (Set ${currentSet} of ${sets})`;
+//descriptionElement.textContent = `Exercise: ${exercise.description} (Set ${currentSet} of ${sets})`;
 
 
 // Initial State
 gifContainer.innerHTML = `<p>Press Play to Start the Workout!</p>`;
-
-
-document.addEventListener("DOMContentLoaded", () => {
-    const workoutLinks = document.querySelectorAll(".list-group-item a"); // Target all links within the list group
-    const descriptionElement = document.getElementById("description"); // Reference the description element
-
-    workoutLinks.forEach((link) => {
-        link.addEventListener("click", (event) => {
-            event.preventDefault(); // Stop the default link behavior
-            const url = new URL(link.href, window.location.origin); // Build the URL
-            window.history.pushState({}, "", url); // Update the URL without reloading
-            descriptionElement.textContent = "Click Play to begin"; // Update the description text
-            location.reload(); // Reload to load the new workout parameters
-        });
-    });
-});
