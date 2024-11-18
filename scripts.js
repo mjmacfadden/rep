@@ -34,7 +34,7 @@ let currentSet = 1;
 
 function displayNext() {
   if (selectedExercises.length === 0) {
-      gifContainer.innerHTML = `<p>No exercises selected. Please provide IDs in the URL.</p>`;
+      gifContainer.innerHTML = `<p>No exercises selected. Please choose one from below.</p>`;
       descriptionElement.textContent = "";
       return;
   }
@@ -92,7 +92,7 @@ pauseButton.addEventListener("click", () => {
     pauseButton.disabled = true;
 
     // Show pause image
-    gifContainer.innerHTML = `<img src="${pauseImage}" alt="Paused">`;
+    gifContainer.innerHTML = `<img id="pause_logo" src="${pauseImage}" alt="Paused">`;
     descriptionElement.textContent = "Workout Paused";
     clearTimeout(timer);
 });
@@ -116,3 +116,19 @@ descriptionElement.textContent = `Exercise: ${exercise.description} (Set ${curre
 
 // Initial State
 gifContainer.innerHTML = `<p>Press Play to Start the Workout!</p>`;
+
+
+document.addEventListener("DOMContentLoaded", () => {
+    const workoutLinks = document.querySelectorAll(".list-group-item a"); // Target all links within the list group
+    const descriptionElement = document.getElementById("description"); // Reference the description element
+
+    workoutLinks.forEach((link) => {
+        link.addEventListener("click", (event) => {
+            event.preventDefault(); // Stop the default link behavior
+            const url = new URL(link.href, window.location.origin); // Build the URL
+            window.history.pushState({}, "", url); // Update the URL without reloading
+            descriptionElement.textContent = "Click Play to begin"; // Update the description text
+            location.reload(); // Reload to load the new workout parameters
+        });
+    });
+});
