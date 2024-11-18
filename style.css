@@ -35,6 +35,9 @@ h1 a{
 #description{
   min-height:24px;
 }
+#successMessage{
+  min-height:24px;
+}
 
 /*
 =================================================
@@ -62,4 +65,8 @@ Progress Bar
 
 .progress-bar.bg-success {
   background-color: #28a745;
+}
+
+#workoutProgress .progress-bar, #setProgress .progress-bar {
+  transition: width 0.1s linear;
 }

@@ -26,16 +26,51 @@ const descriptionElement = document.getElementById("description");
 const playButton = document.getElementById("playButton");
 const pauseButton = document.getElementById("pauseButton");
 const startOverButton = document.getElementById("startOverButton");
-
-
 const sets = parseInt(urlParams.get("sets"), 10) || 1; // Default to 1 set if not specified
 let currentSet = 1;
 
+let workoutProgressBar, setProgressBar;
+let workoutProgressValue = 0, setProgressValue = 0;
+let workoutProgressInterval, setProgressInterval;
+const exerciseDuration = 10000; // Duration of each exercise in milliseconds
+
+function startProgressAnimation() {
+    if (workoutProgressBar && setProgressBar) {
+        // Animate workout progress bar for each exercise
+        workoutProgressValue = 0; // Reset for each exercise
+        clearInterval(workoutProgressInterval);
+        workoutProgressInterval = setInterval(() => {
+            workoutProgressValue += 100 / (exerciseDuration / 1000); // Increment per second
+            if (workoutProgressValue >= 100) {
+                workoutProgressValue = 100;
+            }
+            workoutProgressBar.style.width = `${workoutProgressValue}%`;
+            workoutProgressBar.setAttribute("aria-valuenow", workoutProgressValue);
+        }, 1000); // Update every second
+
+        // Animate set progress bar
+        clearInterval(setProgressInterval);
+        setProgressInterval = setInterval(() => {
+            setProgressValue += (100 / sets) / (selectedExercises.length * (exerciseDuration / 1000)); // Increment based on total workout time
+            if (setProgressValue >= 100) {
+                setProgressValue = 100;
+            }
+            setProgressBar.style.width = `${setProgressValue}%`;
+            setProgressBar.setAttribute("aria-valuenow", setProgressValue);
+        }, 1000); // Update every second
+    }
+}
+
+function stopProgressAnimation() {
+    clearInterval(workoutProgressInterval);
+    clearInterval(setProgressInterval);
+}
 
 function displayNext() {
     if (selectedExercises.length === 0) {
-        gifContainer.innerHTML = `<p>No exercises selected. Please choose one from below.</p>`;
+        gifContainer.innerHTML = `<p>Choose a workout from the list below.</p>`;
         descriptionElement.textContent = "";
+        stopProgressAnimation();
         return;
     }
 
@@ -45,43 +80,67 @@ function displayNext() {
         gifContainer.innerHTML = `<p></p>`;
         descriptionElement.textContent = "";
         document.getElementById("successMessage").style.display = "block";
+        stopProgressAnimation();
         return;
     }
 
     if (isCountdown) {
         const exercise = selectedExercises[currentIndex];
         gifContainer.innerHTML = `<img src="${exercise.gif}" alt="${exercise.name}">`;
-        descriptionElement.textContent = `Exercise: ${exercise.description} (Set ${currentSet} of ${sets})`; // Moved here
+        descriptionElement.textContent = `Exercise: ${exercise.description} (Set ${currentSet} of ${sets})`;
+        startProgressAnimation();
         currentIndex++;
         if (currentIndex >= selectedExercises.length) {
             currentIndex = 0;
             currentSet++;
         }
         isCountdown = false;
-        timer = setTimeout(displayNext, 10000); // Show the exercise for 5 seconds
+        timer = setTimeout(() => {
+            stopProgressAnimation();
+            displayNext();
+        }, exerciseDuration); // Show the exercise for 10 seconds
     } else {
         gifContainer.innerHTML = `<img src="${countdownGif}" alt="Countdown">`;
         descriptionElement.textContent = "Get ready for the next exercise!";
+        stopProgressAnimation();  // Stop animation during countdown
         isCountdown = true;
         timer = setTimeout(displayNext, countdownDuration); // Show countdown for its duration
     }
 }
 
+function initializeProgressBars() {
+    workoutProgressBar = document.querySelector("#workoutProgress .progress-bar");
+    setProgressBar = document.querySelector("#setProgress .progress-bar");
+    
+    if (!workoutProgressBar || !setProgressBar) {
+        console.error("Progress bar elements not found");
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    initializeProgressBars();
+});
 
 playButton.addEventListener("click", () => {
-  isPaused = false;
-  playButton.disabled = true;
-  pauseButton.disabled = false;
+    if (selectedExercises.length === 0) {
+        alert("Please select a workout first.");
+        isPaused = true;
+        playButton.disabled = false;
+        pauseButton.disabled = true;
+        return;
+    }
+    isPaused = false;
+    playButton.disabled = true;
+    pauseButton.disabled = false;
 
-  const imgElement = gifContainer.querySelector("img");
+    const imgElement = gifContainer.querySelector("img");
+    if (imgElement && imgElement.src.includes(pauseImage)) {
+        const currentGif = isCountdown ? countdownGif : selectedExercises[currentIndex].gif;
+        gifContainer.innerHTML = `<img src="${currentGif}" alt="Resumed GIF">`;
+        startProgressAnimation();
+    }
 
-  if (imgElement && imgElement.src.includes(pauseImage)) {
-      // Resume from pause
-      const currentGif = isCountdown ? countdownGif : selectedExercises[currentIndex].gif;
-      gifContainer.innerHTML = `<img src="${currentGif}" alt="Resumed GIF">`;
-  }
-
-  displayNext();
+    displayNext();
 });
 
 pauseButton.addEventListener("click", () => {
@@ -89,28 +148,31 @@ pauseButton.addEventListener("click", () => {
     playButton.disabled = false;
     pauseButton.disabled = true;
 
-    // Show pause image
     gifContainer.innerHTML = `<img id="pause_logo" src="${pauseImage}" alt="Paused">`;
     descriptionElement.textContent = "Workout Paused";
     clearTimeout(timer);
+    stopProgressAnimation();
 });
 
 startOverButton.addEventListener("click", () => {
-  isPaused = true;
-  playButton.disabled = false;
-  pauseButton.disabled = true;
-  clearTimeout(timer);
-  currentIndex = 0;
-  currentSet = 1;
-  isCountdown = false;
-
-  gifContainer.innerHTML = `<p>Press Play to Start the Workout!</p>`;
-  descriptionElement.textContent = "";
-  document.getElementById("successMessage").style.display = "none";
+    isPaused = true;
+    playButton.disabled = false;
+    pauseButton.disabled = true;
+    clearTimeout(timer);
+    stopProgressAnimation();
+    currentIndex = 0;
+    currentSet = 1;
+    isCountdown = false;
+    workoutProgressBar.style.width = "0%";
+    setProgressBar.style.width = "0%";
+    gifContainer.innerHTML = `<p>Press Play to Start the Workout!</p>`;
+    descriptionElement.textContent = "";
+    document.getElementById("successMessage").style.display = "none";
 });
 
-//descriptionElement.textContent = `Exercise: ${exercise.description} (Set ${currentSet} of ${sets})`;
-
-
 // Initial State
-gifContainer.innerHTML = `<p>Press Play to Start the Workout!</p>`;
+if (selectedExercises.length === 0) {
+    gifContainer.innerHTML = `<p>Choose a workout from the list below.</p>`;
+} else {
+    gifContainer.innerHTML = `<p>Press Play to Start the Workout!</p>`;
+}
