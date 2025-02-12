@@ -1,68 +1,111 @@
 <!DOCTYPE html>
-<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
-<html>
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>Rep</title>
-        <meta name="description" content="Fitness App">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-        <!-- FONTS -->
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Limelight&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="style.css">
-    </head>
-    <body>
-        <!--[if lt IE 7]>
-            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
-        <![endif]-->
-        <div class="container text-center mt-4">
-            <h1 class="mb-4"><a href="/rep">REP+</a></h1>
-            <div id="gifContainer" class="gif-container">
-                <!--<img src="img/get_started.jpg" alt="Get Started">-->
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9TEPP3727T"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-9TEPP3727T');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Other meta tags and title -->
+    <meta property="og:image" content="img/cbglessons.png">
+    <meta property="og:description" content="Your favorite cigar box guitar lessons in one spot.">
+    <title>Rep+</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Custom Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Hello Bar -->
+    <div class="alert alert-primary text-center mb-0" id="helloBar">
+        <button type="button" class="btn-close" onclick="hideHelloBar();"></button>
+        <p>Welcome Rep+ We're just getting started, so come back soon for more.</p>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar bg-light navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.html">REP+</a>
+            <div class="nav-buttons">
+                <a href="index.html" data-bs-toggle="modal" data-bs-target="#exampleModal"><button class="btn btn-sm btn-outline-dark mr-2 filter-btn">SIGN UP NOW</button></a>
             </div>
-            <p id="description" class="mt-4"></p>
-            <p id="successMessage" class="mt-4 text-success" style="display: none;">Congratulations! You've completed the workout!</p>
+        </div>
+    </nav>
+    <div class="container mt-5">
+        <div class="row">
+
+            <!-- Two-thirds column -->
+            <div class="col-md-8">
+                <div class="p-3">
+                    <div class="embed-responsive embed-responsive-16by9 mb-4 d-flex align-items-center" id="videoPlayer">
+                        <!-- YouTube video player will be inserted here
+                        <iframe width="100%" height="482" src="https://www.youtube.com/embed/ps9cBeZ43r8?si=QkDxXsxbCtRQk6QI" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                        -->
+                        <img src="img/play-mobile.png" class="ad-mobile align-middle d-block d-md-none mx-auto" alt="Reach cigar box guitar enthusiasts directly by advertising on our premier lessons website! Capture the attention of visitors as soon as they land on our site with a prominent, year-long ad display for only $100!  Interested? Email Mike Macfadden at: mikemacfadden@gmail.com">
+                        <img src="img/play.png" class="d-none d-md-block ad align-middle" alt="Reach cigar box guitar enthusiasts directly by advertising on our premier lessons website! Capture the attention of visitors as soon as they land on our site with a prominent, year-long ad display for only $100!  Interested? Email Mike Macfadden at: mikemacfadden@gmail.com">
+                        
+                    </div>
+                    <div id="videoData"></div>
+                </div>
+            </div>
+            <!-- One-third column -->
+            <div class="col-md-4">
+                <div class="p-3">
+                    <h5 id="course">YouTube Video Titles</h5>
+                    <ul class="list-group" id="videoList"></ul>
+                </div>
+            </div>
             
-            <div id="progressBars">
-                <div id="workoutProgress" class="progress mb-2">
-                    <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-                <div id="setProgress" class="progress">
-                    <div class="progress-bar bg-success" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+    </div>
+    <div class="course-list py-5 mt-5">
+        <div class="container py-5">
+            <div class="row">
+                <div class="col">
+                    <div class="p-3">
+                        <h2>Courses</h2>
+                        <ul id="courses"></ul>
+                    </div>
                 </div>
             </div>
-
-            <div class="controls">
-                <i class="bi bi-play-fill" id="playButton"></i>
-                <i class="bi bi-pause-fill" id="pauseButton" disabled></i>
-                <i class="bi bi-arrow-counterclockwise" id="startOverButton"></i>
-              </div>
-          </div>
+        </div>
+    </div>
 
 
-          <div class="container mt-4">
-            <h2>Select a Workout</h2>
-            <ul class="list-group">
-                <li class="list-group-item">
-                    <a href="?ids=1,2,3&sets=3">Beginner Workout (3 Sets)</a>
-                </li>
-                <li class="list-group-item">
-                    <a href="?ids=2,4,5&sets=2">Intermediate Workout (2 Sets)</a>
-                </li>
-                <li class="list-group-item">
-                    <a href="?ids=1,3,4,6&sets=4">Advanced Workout (4 Sets)</a>
-                </li>
-            </ul>
-          </div>
-        
-          
-        <script src="scripts.js" defer></script>
-    </body>
+    <!-- Bootstrap Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="exampleModalLabel">Welcome to Rep+</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                        <p>More soon...</p>
+                       
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <!-- Add additional buttons or actions here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS (required for some Bootstrap features) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JavaScript -->
+    <script src="scripts.js"></script>
+</body>
 </html>

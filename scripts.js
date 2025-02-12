@@ -1,178 +1,282 @@
-// Array of GIFs with IDs, names, and descriptions
-const exercises = [
-    { id: 1, name: "Kettlebell Snatch", description: "TK-1", gif: "img/kettlebell_snatch.gif" },
-    { id: 2, name: "Kettlebell Squat", description: "TK-2", gif: "img/kettlebell_squat.gif" },
-    { id: 3, name: "Kettlebell Swing", description: "TK-3", gif: "img/kettlebell_swing.gif" },
-    { id: 4, name: "Kettlebell Single Leg Deadlift", description: "TK-4", gif: "img/kettlebell_single_leg_deadlift.gif" },
-    { id: 5, name: "Kettlebell Lunge", description: "TK-5", gif: "img/kettlebell_lunge.gif" },
-    { id: 6, name: "Kettlebell One Arm Squat", description: "TK-6", gif: "img/kettlebell_one_arm_squat.gif" },
+// Array of video data
+const videos = [
+    {
+        id: 1,
+        title: "How to Hit Irons Consistently (Simple Golf Tips)",
+        description: "In this video PGA Golf Professional Rick Shiels shows you the simple and easy way to hit your golf irons more consistently.",
+        youtubeLink: "https://youtu.be/qdRSOKvjNZU?si=m4XnILMT36nBSlK8",
+        complete: false
+    },
+    {
+        id: 2,
+        title: "CRUSH YOUR 3 WOOD FROM THE FAIRWAY EVERY TIME!",
+        description: "PGA Rick Shiels shows you a very simple way to CRUSH YOUR 3 WOOD FROM THE FAIRWAY everytime!",
+        youtubeLink: "https://youtu.be/0rNV1srn85w?si=9eEY_34UxNBHrjt9",
+        complete: false
+    },
+    {
+        id: 3,
+        title: "Using Wedges Is EASY With The 1-2-3 Method!(Simple Golf Tips)",
+        description: "Matt Fryer Golf takes you through a full guide and the 1-2-3 method that help him transform his wedge game. ",
+        youtubeLink: "https://youtu.be/pAqoE5Gy328?si=yq00zD74FyO0HRJh",
+        complete: false
+    },
+    {
+        id: 4,
+        title: "This Technique Makes Fairway Woods & Hybrids So Easy!",
+        description: "Learn how to strike your hybrid and fairway woods like never before with this simple golf drill created by Danny Maude. ",
+        youtubeLink: "https://youtu.be/wpNbNWv7aDk?si=hBziXvm_i5xyiXBh",
+        complete: false
+    }
+
+
+
+
+
+    /*
+    {
+        id: ,
+        title: "",
+        description: "",
+        youtubeLink: "",
+        complete: false
+    }
+    */
 ];
 
-const countdownGif = "img/countdown.gif";
-const pauseImage = "img/pause.jpg"; // Path to pause image
-const countdownDuration = 4200; // Countdown duration in milliseconds
-let timer; // Holds the current timeout
-let currentIndex = 0;
-let isCountdown = false;
-let isPaused = true;
-
-// Parse the URL for IDs
-const urlParams = new URLSearchParams(window.location.search);
-const selectedIDs = urlParams.get("ids")?.split(",").map(Number) || [];
-const selectedExercises = exercises.filter((ex) => selectedIDs.includes(ex.id));
-
-const gifContainer = document.getElementById("gifContainer");
-const descriptionElement = document.getElementById("description");
-const playButton = document.getElementById("playButton");
-const pauseButton = document.getElementById("pauseButton");
-const startOverButton = document.getElementById("startOverButton");
-const sets = parseInt(urlParams.get("sets"), 10) || 1; // Default to 1 set if not specified
-let currentSet = 1;
-
-let workoutProgressBar, setProgressBar;
-let workoutProgressValue = 0, setProgressValue = 0;
-let workoutProgressInterval, setProgressInterval;
-const exerciseDuration = 10000; // Duration of each exercise in milliseconds
-
-function startProgressAnimation() {
-    if (workoutProgressBar && setProgressBar) {
-        // Animate workout progress bar for each exercise
-        workoutProgressValue = 0; // Reset for each exercise
-        clearInterval(workoutProgressInterval);
-        workoutProgressInterval = setInterval(() => {
-            workoutProgressValue += 100 / (exerciseDuration / 1000); // Increment per second
-            if (workoutProgressValue >= 100) {
-                workoutProgressValue = 100;
-            }
-            workoutProgressBar.style.width = `${workoutProgressValue}%`;
-            workoutProgressBar.setAttribute("aria-valuenow", workoutProgressValue);
-        }, 1000); // Update every second
-
-        // Animate set progress bar
-        clearInterval(setProgressInterval);
-        setProgressInterval = setInterval(() => {
-            setProgressValue += (100 / sets) / (selectedExercises.length * (exerciseDuration / 1000)); // Increment based on total workout time
-            if (setProgressValue >= 100) {
-                setProgressValue = 100;
-            }
-            setProgressBar.style.width = `${setProgressValue}%`;
-            setProgressBar.setAttribute("aria-valuenow", setProgressValue);
-        }, 1000); // Update every second
+// Array of courses
+const courses = [
+    {
+        title: "Golf",
+        videoIds: [1, 2, 3, 4]
+    },
+    {
+        title: "Football",
+        videoIds: [1]
+    },
+    {
+        title: "Hockey",
+        videoIds: [1]
+    },
+    {
+        title: "Soccer",
+        videoIds: [1]
+    },
+    {
+        title: "Baseball",
+        videoIds: [1]
     }
-}
+];
+// Function to display courses and populate the first course on load
+function displayCourses() {
+    const coursesList = document.getElementById("courses");
+    const courseTitleElement = document.getElementById("course");
 
-function stopProgressAnimation() {
-    clearInterval(workoutProgressInterval);
-    clearInterval(setProgressInterval);
-}
+    // Populate courses list
+    courses.forEach((course, index) => {
+        const courseItem = document.createElement("li");
+        courseItem.textContent = course.title;
+        courseItem.classList.add('list-group-item', 'course-item');
+        courseItem.setAttribute("data-video-ids", course.videoIds.join(','));
+        courseItem.addEventListener("click", () => {
+            updateVideoList(course.videoIds);
+            courseTitleElement.textContent = course.title;
+            updateURLWithCourseAndVideo(course.title, course.videoIds[0]); // Update URL with course title and first video ID
+        });
+        coursesList.appendChild(courseItem);
 
-function displayNext() {
-    if (selectedExercises.length === 0) {
-        gifContainer.innerHTML = `<p>Choose a workout from the list below.</p>`;
-        descriptionElement.textContent = "";
-        stopProgressAnimation();
-        return;
-    }
-
-    if (isPaused) return;
-
-    if (currentIndex === 0 && currentSet > sets) {
-        gifContainer.innerHTML = `<p></p>`;
-        descriptionElement.textContent = "";
-        document.getElementById("successMessage").style.display = "block";
-        stopProgressAnimation();
-        return;
-    }
-
-    if (isCountdown) {
-        const exercise = selectedExercises[currentIndex];
-        gifContainer.innerHTML = `<img src="${exercise.gif}" alt="${exercise.name}">`;
-        descriptionElement.textContent = `Exercise: ${exercise.description} (Set ${currentSet} of ${sets})`;
-        startProgressAnimation();
-        currentIndex++;
-        if (currentIndex >= selectedExercises.length) {
-            currentIndex = 0;
-            currentSet++;
+        // Display the first course on page load if no URL params are present
+        if (index === 0 && !window.location.search) {
+            updateVideoList(course.videoIds); // Populate video list for the first course
+            courseTitleElement.textContent = course.title; // Set course title
+            updateURLWithCourseAndVideo(course.title, course.videoIds[0]); // Update URL with course title and first video ID
         }
-        isCountdown = false;
-        timer = setTimeout(() => {
-            stopProgressAnimation();
-            displayNext();
-        }, exerciseDuration); // Show the exercise for 10 seconds
+    });
+
+    // Check URL parameters and display appropriate course and video on page load
+    const urlParams = new URLSearchParams(window.location.search);
+    const courseTitle = urlParams.get('course');
+    const videoId = parseInt(urlParams.get('video'), 10);
+
+    if (courseTitle && videoId) {
+        const course = courses.find(c => c.title === courseTitle);
+        if (course) {
+            updateVideoList(course.videoIds);
+            courseTitleElement.textContent = course.title;
+            const video = videos.find(v => v.id === videoId);
+            if (video) {
+                playVideo(video);
+            }
+        }
+    }
+}
+
+// Function to update video list based on selected course
+function updateVideoList(videoIds) {
+    const videoList = document.getElementById("videoList");
+    videoList.innerHTML = ''; // Clear existing video list
+
+    videoIds.forEach(videoId => {
+        const video = videos.find(v => v.id === videoId);
+        if (video) {
+            const listItem = document.createElement("li");
+            const completionIcon = document.createElement("i");
+
+            // Retrieve completion status from local storage
+            const completionStatus = localStorage.getItem(`video_${videoId}_completed`);
+            video.complete = completionStatus === 'true'; // Set video's completion status
+
+            // Determine icon and color based on completion status
+            if (video.complete) {
+                completionIcon.classList.add('bi', 'bi-check-circle-fill');
+                completionIcon.style.color = 'green';
+            } else {
+                completionIcon.classList.add('bi', 'bi-check-circle');
+                completionIcon.style.color = 'inherit';
+            }
+
+            listItem.textContent = video.title;
+            listItem.classList.add('list-group-item');
+            listItem.setAttribute("data-id", video.id);
+
+            // Add completion icon to the list item
+            listItem.appendChild(completionIcon);
+            videoList.appendChild(listItem);
+
+            // Clicking on video list item should play the video and update the URL
+            listItem.addEventListener("click", () => {
+                playVideo(video); // Play the video
+                updateURLWithCourseAndVideo(document.getElementById("course").textContent, video.id); // Update URL with current course and video ID
+            });
+
+            // Toggle completion status on icon click
+            completionIcon.addEventListener("click", (event) => {
+                event.stopPropagation(); // Prevent click event from propagating to the list item
+                video.complete = !video.complete; // Toggle completion status
+                saveVideoCompletionStatus(video.id, video.complete); // Save to local storage
+
+                // Update the completion icon appearance based on the new completion status
+                if (video.complete) {
+                    completionIcon.classList.remove('bi-check-circle');
+                    completionIcon.classList.add('bi-check-circle-fill');
+                    completionIcon.style.color = 'green';
+                } else {
+                    completionIcon.classList.remove('bi-check-circle-fill');
+                    completionIcon.classList.add('bi-check-circle');
+                    completionIcon.style.color = 'inherit';
+                }
+            });
+        }
+    });
+
+    // Load the first video from the updated video list into the video player
+    if (videoIds.length > 0) {
+        const firstVideoId = videoIds[0];
+        const firstVideo = videos.find(v => v.id === firstVideoId);
+        if (firstVideo) {
+            playVideo(firstVideo);
+        }
+    }
+}
+
+// Function to save video completion status to local storage
+function saveVideoCompletionStatus(videoId, completed) {
+    localStorage.setItem(`video_${videoId}_completed`, completed);
+}
+
+// Function to play selected video and update the URL
+function playVideo(video) {
+    const videoId = getYouTubeVideoId(video.youtubeLink);
+    const embedUrl = `https://www.youtube.com/embed/${videoId}`;
+
+    const videoData = document.getElementById("videoData");
+    videoData.innerHTML = `
+        <h2>${video.title}</h2>
+        <p>${video.description}</p>
+    `;
+
+    const videoPlayer = document.getElementById("videoPlayer");
+    videoPlayer.innerHTML = `
+        <iframe width="560" height="315" src="${embedUrl}" frameborder="0" allowfullscreen></iframe>
+    `;
+}
+
+// Helper function to extract YouTube video ID from URL
+function getYouTubeVideoId(url) {
+    const regExp = /^.*(youtu\.be\/|v\/|e\/|u\/\w+\/|embed\/|v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+
+    if (match && match[2].length === 11) {
+        return match[2];
     } else {
-        gifContainer.innerHTML = `<img src="${countdownGif}" alt="Countdown">`;
-        descriptionElement.textContent = "Get ready for the next exercise!";
-        stopProgressAnimation();  // Stop animation during countdown
-        isCountdown = true;
-        timer = setTimeout(displayNext, countdownDuration); // Show countdown for its duration
+        return 'Invalid video URL';
     }
 }
 
-function initializeProgressBars() {
-    workoutProgressBar = document.querySelector("#workoutProgress .progress-bar");
-    setProgressBar = document.querySelector("#setProgress .progress-bar");
-    
-    if (!workoutProgressBar || !setProgressBar) {
-        console.error("Progress bar elements not found");
-    }
+// Function to update URL with course and video ID
+function updateURLWithCourseAndVideo(courseTitle, videoId) {
+    const url = new URL(window.location);
+    url.searchParams.set('course', courseTitle);
+    url.searchParams.set('video', videoId);
+    window.history.pushState({}, '', url);
 }
 
-document.addEventListener("DOMContentLoaded", function() {
-    initializeProgressBars();
-});
+// Display initial list of courses and populate the first course on load
+displayCourses();
 
-playButton.addEventListener("click", () => {
-    if (selectedExercises.length === 0) {
-        alert("Please select a workout first.");
-        isPaused = true;
-        playButton.disabled = false;
-        pauseButton.disabled = true;
-        return;
+
+
+const shareButton = document.getElementById('learnShareButton');
+//const url = window.location.href;
+const baseUrl = window.location.origin + window.location.pathname; // Get base URL without query parameters
+const queryParams = window.location.search; // Get query parameters if they exist
+
+const shareMessage = `Check out this cigar box guitar lesson: ${baseUrl}${queryParams}`;
+
+shareButton.addEventListener('click', function() {
+    //const url = window.location.href;
+    const baseUrl = window.location.origin + window.location.pathname; // Get base URL without query parameters
+    const queryParams = window.location.search; // Get query parameters if they exist
+    const shareMessage = `Check out this cigar box guitar lesson: ${baseUrl}${queryParams}`;
+    if (navigator.share) {
+        // Share using Web Share API (mobile)
+        navigator.share({
+            title: document.title,
+            text: `Check out this cigar box guitar lesson: ${baseUrl}${queryParams}`
+        })
+    } else {
+        // Copy URL to clipboard (non-mobile)
+        copyToClipboard(shareMessage);
     }
-    isPaused = false;
-    playButton.disabled = true;
-    pauseButton.disabled = false;
-
-    const imgElement = gifContainer.querySelector("img");
-    if (imgElement && imgElement.src.includes(pauseImage)) {
-        const currentGif = isCountdown ? countdownGif : selectedExercises[currentIndex].gif;
-        gifContainer.innerHTML = `<img src="${currentGif}" alt="Resumed GIF">`;
-        startProgressAnimation();
-    }
-
-    displayNext();
 });
 
-pauseButton.addEventListener("click", () => {
-    isPaused = true;
-    playButton.disabled = false;
-    pauseButton.disabled = true;
+// Function to display a message on the webpage
+function displayMessage(message) {
+    const messageElement = document.createElement('div');
+    messageElement.textContent = message;
+    messageElement.style.backgroundColor = 'rgba(0, 123, 255, 1)';
+    messageElement.style.color = '#fff';
+    messageElement.style.padding = '10px';
+    messageElement.style.position = 'fixed';
+    messageElement.style.top = '70px';
+    messageElement.style.left = '50%';
+    messageElement.style.transform = 'translate(-50%, -50%)';
+    messageElement.style.zIndex = '9999';
+    document.body.appendChild(messageElement);
 
-    gifContainer.innerHTML = `<img id="pause_logo" src="${pauseImage}" alt="Paused">`;
-    descriptionElement.textContent = "Workout Paused";
-    clearTimeout(timer);
-    stopProgressAnimation();
-});
+    // Remove the message after a few seconds (e.g., 3 seconds)
+    setTimeout(() => {
+        messageElement.remove();
+    }, 3000); // Remove after 3 seconds
+}
 
-startOverButton.addEventListener("click", () => {
-    isPaused = true;
-    playButton.disabled = false;
-    pauseButton.disabled = true;
-    clearTimeout(timer);
-    stopProgressAnimation();
-    currentIndex = 0;
-    currentSet = 1;
-    isCountdown = false;
-    workoutProgressBar.style.width = "0%";
-    setProgressBar.style.width = "0%";
-    gifContainer.innerHTML = `<p>Press Play to Start the Workout!</p>`;
-    descriptionElement.textContent = "";
-    document.getElementById("successMessage").style.display = "none";
-});
-
-// Initial State
-if (selectedExercises.length === 0) {
-    gifContainer.innerHTML = `<p>Choose a workout from the list below.</p>`;
-} else {
-    gifContainer.innerHTML = `<p>Press Play to Start the Workout!</p>`;
+// Function to copy text to clipboard
+function copyToClipboard(text) {
+    const textField = document.createElement('textarea');
+    textField.value = text;
+    document.body.appendChild(textField);
+    textField.select();
+    document.execCommand('copy');
+    document.body.removeChild(textField);
+    displayMessage("Link copied to clipboard!");
 }
